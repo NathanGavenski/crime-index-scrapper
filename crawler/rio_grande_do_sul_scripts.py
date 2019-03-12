@@ -60,7 +60,7 @@ class Scripts_RS:
     def get_all_files_downloaded(self):
         path = './crawler/helper/downloaded_files/RS'
         city = [join(f'{path}/city', f) for f in listdir(f'{path}/city') if isfile(join(f'{path}/city', f))]
-        general = [join(f'{path}/city', f) for f in listdir(f'{path}/general') if isfile(join(f'{path}/general', f))]
+        general = [join(f'{path}/general', f) for f in listdir(f'{path}/general') if isfile(join(f'{path}/general', f))]
         return city, general
 
     def export_files(self, files):
@@ -68,7 +68,7 @@ class Scripts_RS:
         for file in files:
             try:
                 year, data = interpreter.interpret(file)
-                print(file, year)
+                print(file.split('/')[-1], year)
             except Exception as e:
                 print(e)
 
@@ -93,15 +93,16 @@ class Scripts_RS:
         t2.start()
 
         t1.join()
+        t2.join()
+
         city, general = self.get_all_files_downloaded()
         threading.Thread(
             target=self.export_files,
             kwargs={ 'files': city }).start()
 
-        t2.join()
-        # threading.Thread(
-        #     target=self.export_files,
-        #     kwargs={ 'files': general }).start()
+        threading.Thread(
+            target=self.export_files,
+            kwargs={ 'files': general }).start()
 
 
 script = Scripts_RS()
