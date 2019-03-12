@@ -1,0 +1,38 @@
+name: crawlers
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - asn1crypto=0.24.0
+  - autopep8=1.4.3
+  - blas=1.0=mkl
+  - ca-certificates=2018.11.29
+  - certifi=2018.11.29
+  - cffi=1.11.5
+  - chardet=3.0.4
+  - cryptography=2.5
+  - idna=2.8
+  - intel-openmp=2019.1
+  - mkl=2019.1
+  - mkl_fft=1.0.10
+  - mkl_random=1.0.2
+  - numpy=1.15.4
+  - numpy-base=1.15.4
+  - openssl=1.1.1a
+  - pandas=0.24.1
+  - pip=19.0.1
+  - pycodestyle=2.5.0
+  - pycparser=2.19
+  - pyopenssl=19.0.0
+  - pysocks=1.6.8
+  - python=3.7.2
+  - python-dateutil=2.7.5
+  - pytz=2018.9
+  - requests=2.21.0
+  - selenium=3.141.0
+  - setuptools=40.8.0
+  - six=1.12.0
+  - sqlite=3.26.0
+  - urllib3=1.24.1
+  - wheel=0.32.3
+  - xlrd=1.2.0

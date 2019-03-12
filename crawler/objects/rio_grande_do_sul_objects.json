@@ -1,0 +1,14 @@
+{
+    "url": "https://www.ssp.rs.gov.br/indicadores-criminais",
+    "indicadores_criminais": {
+        "tag": "h1",
+        "text": "Indicadores Criminais"
+    },
+    "indicador_por_municipio": {
+        "tag": "div[@class='artigo__texto']//div//a",
+        "text": "municipio"
+    },
+    "indicador_geral": {
+        "xpath": "//div[@class='artigo__texto']//div//a[not(contains(@href, \"municipio\"))]"
+    }
+}

@@ -1,2 +1,6 @@
-# crime-index-scrapper
-This is a scrapper for getting all information regarding crime indexes.
+# Crime Indicator Crawler
+
+Comandos para gerenciar ambiente: 
+- Criar ambiente: conda env create -f requirements.yml
+- Atualizar dependências: conda env export > requirements.yml
+- Atualizar ambiente: conda env update -f=requirements.yml
