@@ -9,6 +9,7 @@ class Interpreter:
         self.current_version_regex = r'\d{4} - Fato Consumado'
 
     def interpret(self, file):
+        # TODO: Adicionar tratamento para exceção de versão
         self.file = pd.ExcelFile(file)
         df = self.read_excel(file)
         
