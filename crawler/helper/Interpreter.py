@@ -25,7 +25,7 @@ class Interpreter:
 
     def read_excel(self, file):
         df = pd.read_excel(file)
-        if 'municipio' in file and self.file.sheet_names[0] == 'GERAL':
+        if self.file.sheet_names[0] == 'GERAL':
             df = pd.read_excel(file, sheet_name=self.file.sheet_names[1])
         return df
             
@@ -74,15 +74,19 @@ class Interpreter:
         if self.old_type is 'older':
             df.columns = df.iloc[5].values
             df = df.drop(range(6), axis=0)
-            return df.drop([df.index[-1], df.index[-2]], axis=0)
+            df = df.drop([df.index[-1], df.index[-2]], axis=0)
+            df.set_index('Município', inplace=True)
         elif self.old_type is 'newer' or '2019':
             df.columns = df.iloc[10].values
             df = df.drop(range(11), axis=0)
-            return df.drop(range(df.index[-10], df.index[-1] + 1), axis=0)
+            df = df.drop(range(df.index[-10], df.index[-1] + 1), axis=0)
+            df.set_index('Municípios', inplace=True)
         elif self.old_type is '2011':
             df.columns = df.iloc[0].values
             df = df.drop(0, axis=0)
-            return df.drop(df.index[-1], axis=0)
+            df = df.drop(df.index[-1], axis=0)
+            df.set_index('Município', inplace=True)
+        return df
 
     def parse_general_data(self, df):
         if self.old_type is True:
@@ -95,10 +99,3 @@ class Interpreter:
             df = df.drop(range(5), axis=0)
             df = df.drop(range(df.index[-31], df.index[-1] + 1), axis=0)
             return df.dropna(axis=1, how='all')
-
-file_2019 = './crawler/helper/downloaded_files/RS/general/12095608-site-geral-janeiro.xlsx'
-file_2012 = './crawler/helper/downloaded_files/RS/general/11171154-site-geral-2012.xlsx'
-file_2014 = './crawler/helper/downloaded_files/RS/general/05082836-25161832-indicadores-por-mes-ano-de-2014-atualizado-em-15-de-janeiro-2017.xls'
-file_2011 = './crawler/helper/downloaded_files/RS/general/04155020-31164411-indicadores-criminais-ssp-anual-2011.xls'
-interpreter = Interpreter()
-print(interpreter.interpret(file_2011))

@@ -6,10 +6,11 @@ from os.path import isfile, join
 from helper.Chrome import Chrome
 from helper.Request import Request
 from helper.Interpreter import Interpreter
+from helper.Exporter import Exporter
 
 class Scripts_RS:
     def __init__(self):
-        with open('./crawler/objects/rio_grande_do_sul_objects.json') as f:
+        with open('./crawler/helper/objects/rio_grande_do_sul_objects.json') as f:
             self.objects = json.load(f)
 
         self.chrome = Chrome()
@@ -65,10 +66,12 @@ class Scripts_RS:
 
     def export_files(self, files):
         interpreter = Interpreter()
+        exporter = Exporter()
         for file in files:
             try:
                 year, data = interpreter.interpret(file)
-                print(file.split('/')[-1], year)
+                exporter.export(year, data)
+                break
             except Exception as e:
                 print(e)
 
@@ -76,33 +79,33 @@ class Scripts_RS:
         city, general = self.get_files()
         self.chrome.close()
 
-        t1 = threading.Thread(
-                target=self.download_files,
-                kwargs={
-                    'urls': city,
-                    'index_type': 'city'
-                })
-        t1.start()
+        # t1 = threading.Thread(
+        #         target=self.download_files,
+        #         kwargs={
+        #             'urls': city,
+        #             'index_type': 'city'
+        #         })
+        # t1.start()
 
-        t2 = threading.Thread(
-                target=self.download_files,
-                kwargs={
-                    'urls': general,
-                    'index_type': 'general'
-                })
-        t2.start()
+        # t2 = threading.Thread(
+        #         target=self.download_files,
+        #         kwargs={
+        #             'urls': general,
+        #             'index_type': 'general'
+        #         })
+        # t2.start()
 
-        t1.join()
-        t2.join()
+        # t1.join()
+        # t2.join()
 
         city, general = self.get_all_files_downloaded()
         threading.Thread(
             target=self.export_files,
             kwargs={ 'files': city }).start()
 
-        threading.Thread(
-            target=self.export_files,
-            kwargs={ 'files': general }).start()
+        # threading.Thread(
+        #     target=self.export_files,
+        #     kwargs={ 'files': general }).start()
 
 
 script = Scripts_RS()

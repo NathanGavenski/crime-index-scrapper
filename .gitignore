@@ -3,6 +3,10 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Firebase credentials
+config.json
+pyrebase_config.json
+
 # Self ignoring
 downloaded_files/
 
