@@ -50,14 +50,14 @@ class Interpreter:
 
     def define_city_version(self, df):
         year_text = df.iloc[3, 0]
-        if re.compile(self.older_version_regex).search(year_text):
+        if self.file.sheet_names[0] == '2011':
+            return '2011'
+        elif re.compile(self.older_version_regex).search(year_text):
             return 'older'
         elif re.compile(self.newer_version_regex).search(year_text):
             return 'newer'
         elif re.compile(self.current_version_regex).search(year_text):
             return 'newer'
-        elif '2011' in self.file.sheet_names:
-            return '2011'
         else:
             raise Exception(f'Didn\'t match any version known for the file: {self.file.sheet_names}')
 
@@ -77,7 +77,7 @@ class Interpreter:
             df = df.drop(range(6), axis=0)
             df = df.drop([df.index[-1], df.index[-2]], axis=0)
             df.set_index('Município', inplace=True)
-        elif self.old_type is 'newer' or '2019':
+        elif self.old_type is 'newer' or self.old_type is '2019':
             df.columns = df.iloc[10].values
             df = df.drop(range(11), axis=0)
             df = df.drop(range(df.index[-10], df.index[-1] + 1), axis=0)

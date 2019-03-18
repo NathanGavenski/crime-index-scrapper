@@ -14,7 +14,7 @@ class Scripts_RS:
             self.objects = json.load(f)
 
         self.chrome = Chrome()
-        self.chrome.set_options().get_driver(full_screen=False)
+        self.chrome.set_options(headless=False).get_driver(full_screen=False)
 
         self.request = Request()
 
@@ -71,7 +71,6 @@ class Scripts_RS:
             try:
                 year, data = interpreter.interpret(file)
                 exporter.export(year, data)
-                break
             except Exception as e:
                 print(e)
 
