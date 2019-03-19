@@ -8,7 +8,8 @@ config.json
 pyrebase_config.json
 
 # Self ignoring
-downloaded_files/
+*.xls
+*.xlsx
 
 # User-specific files
 *.suo

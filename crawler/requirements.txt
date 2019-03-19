@@ -1,0 +1,5 @@
+chromedriver-binary
+pandas
+Pyrebase4
+requests
+selenium

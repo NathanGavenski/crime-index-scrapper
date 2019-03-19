@@ -4,7 +4,7 @@ import requests, os
 class Request:
 
     def __init__(self):
-        self.file_path = './crawler/helper/downloaded_files/'
+        self.file_path = './helper/downloaded_files/'
         self.accepted_formats = (
             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'application/vnd.ms-excel'
