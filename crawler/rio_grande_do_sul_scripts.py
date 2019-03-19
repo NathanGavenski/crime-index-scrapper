@@ -80,32 +80,34 @@ class Scripts_RS:
         city, general = self.get_files()
         self.chrome.close()
 
-        # t1 = threading.Thread(
-        #         target=self.download_files,
-        #         kwargs={
-        #             'urls': city,
-        #             'index_type': 'city'
-        #         })
-        # t1.start()
+        t1 = threading.Thread(
+                target=self.download_files,
+                kwargs={
+                    'urls': city,
+                    'index_type': 'city'
+                })
+        t1.start()
 
-        # t2 = threading.Thread(
-        #         target=self.download_files,
-        #         kwargs={
-        #             'urls': general,
-        #             'index_type': 'general'
-        #         })
-        # t2.start()
+        t2 = threading.Thread(
+                target=self.download_files,
+                kwargs={
+                    'urls': general,
+                    'index_type': 'general'
+                })
+        t2.start()
 
-        # t1.join()
-        # t2.join()
+        t1.join()
+        t2.join()
 
-        # city, general = self.get_all_files_downloaded()
-        # threading.Thread(
-        #     target=self.export_files,
-        #     kwargs={ 'files': city }).start()
+        city, general = self.get_all_files_downloaded()
+        threading.Thread(
+            target=self.export_files,
+            kwargs={ 'files': city }).start()
 
         # FIXME: Interpreter para os arquivos do estado (ISSUE: #1)
         # threading.Thread(
         #     target=self.export_files,
         #     kwargs={ 'files': general }).start()
 
+script = Scripts_RS()
+script.run()
