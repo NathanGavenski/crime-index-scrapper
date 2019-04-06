@@ -1,4 +1,4 @@
-# Crime Indicator Crawler
+# Crime Index Crawler
 
 Comandos para gerenciar ambiente: 
 - Criar ambiente: conda env create -f requirements.yml
