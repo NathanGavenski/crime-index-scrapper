@@ -1,8 +1,13 @@
-import os, time, sys
+import os
+import time
+import sys
 import chromedriver_binary
 
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException, WebDriverException, StaleElementReferenceException
+from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import ElementClickInterceptedException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -26,10 +31,9 @@ class Chrome:
     def wait(self, count):
         time.sleep(1)
         return count + 1
-    
+
     def navigate(self, url):
         self.driver.get(url)
-
 
     def close(self):
         try:
@@ -71,12 +75,14 @@ class Chrome:
                 return self.driver.find_element_by_link_text(kwargs.pop('link_text'))
             elif 'obj' in kwargs:
                 obj = kwargs.pop('obj')
-                xpath = '//{tag}[text()="{text}"]'.format(tag=obj['tag'], text=obj['text'])
+                xpath = '//{tag}[text()="{text}"]'.format(tag=obj['tag'],
+                                                          text=obj['text'])
                 return self.driver.find_element_by_xpath(xpath)
             elif 'complex_obj' in kwargs:
                 obj = kwargs.pop('complex_obj')
                 keys = list(obj.keys())
-                xpath = '//{tag}[contains(@{content}, "{text}")]'.format(tag=obj['tag'], content=keys[1], text=obj[keys[1]])
+                xpath = '//{tag}[contains(@{content}, "{text}")]'.format(
+                    tag=obj['tag'], content=keys[1], text=obj[keys[1]])
                 return self.driver.find_element_by_xpath(xpath)
             elif 'simple_obj' in kwargs:
                 xpath = kwargs.pop('simple_obj')
@@ -102,12 +108,14 @@ class Chrome:
                 return self.driver.find_elements_by_xpath(kwargs.pop('xpath'))
             elif 'obj' in kwargs:
                 obj = kwargs.pop('obj')
-                xpath = '//{tag}[contains(@href, "{text}")]'.format(tag=obj['tag'], text=obj['text'])
+                xpath = '//{tag}[contains(@href, "{text}")]'.format(
+                    tag=obj['tag'], text=obj['text'])
                 return self.driver.find_elements_by_xpath(xpath)
             elif 'complex_obj' in kwargs:
                 obj = kwargs.pop('complex_obj')
                 keys = list(obj.keys())
-                xpath = '//{tag}[contains(@{content}, "{text}")]'.format(tag=obj['tag'], content=keys[1], text=obj[keys[1]])
+                xpath = '//{tag}[contains(@{content}, "{text}")]'.format(
+                    tag=obj['tag'], content=keys[1], text=obj[keys[1]])
                 return self.driver.find_elements_by_xpath(xpath)
             elif 'simple_obj' in kwargs:
                 xpath = kwargs.pop('simple_obj')
@@ -122,14 +130,22 @@ class Chrome:
                 if count is 30:
                     return False
                 else:
-                    return self.get_objects(count, raiser, **kwarg)    
-                    
-    def _click(self, obj):
-        if obj.is_displayed():
-            obj.click()
-            return self
-        else:
-            return self._click(obj)
+                    return self.get_objects(count, raiser, **kwarg)
+
+    def _click(self, obj, count=0):
+        try:
+            if obj.is_displayed():
+                obj.click()
+                return self
+            else:
+                return self._click(obj)
+        except ElementClickInterceptedException as e:
+            if (count < 30):
+                count = self.wait(count)
+                return self._click(obj, count)
+            else:
+                self.raiser(ElementClickInterceptedException(
+                    f'Not able to click after {count} seconds'))
 
     def _clear(self, obj):
         if obj.is_displayed():
@@ -147,15 +163,15 @@ class Chrome:
 
     def click(self, count=0, **kwargs):
         obj = self.get_object(**kwargs)
-        return self._click(obj) if (obj != None) else self.raiser(NoSuchElementException)
+        return self._click(obj) if (obj is not None) else self.raiser(NoSuchElementException)
 
     def send_keys(self, text, count=0, **kwargs):
         obj = self.get_object(**kwargs)
-        return self._send_keys(obj, text) if (obj != None) else self.raiser(NoSuchElementException)
+        return self._send_keys(obj, text) if (obj is not None) else self.raiser(NoSuchElementException)
 
     def clear(self, **kwargs):
         obj = self.get_object(**kwargs)
-        return self._clear(obj) if (obj != None) else self.raiser(NoSuchElementException)
+        return self._clear(obj) if (obj is not None) else self.raiser(NoSuchElementException)
 
     def wait_for(self, **kwargs):
         obj = self.get_object(**kwargs)
