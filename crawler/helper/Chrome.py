@@ -26,6 +26,21 @@ class Chrome:
     def wait(self, count):
         time.sleep(1)
         return count + 1
+    
+    def navigate(self, url):
+        self.driver.get(url)
+
+
+    def close(self):
+        try:
+            tab_count = len(self.driver.window_handles)
+            if tab_count > 1:
+                for i in range(tab_count):
+                    self.driver.close()
+            else:
+                self.driver.close()
+        except WebDriverException:
+            print('[close()] Browser already closed')
 
     def get_driver(self, full_screen=True):
         self.driver = webdriver.Chrome(chrome_options=self.options)
@@ -58,6 +73,14 @@ class Chrome:
                 obj = kwargs.pop('obj')
                 xpath = '//{tag}[text()="{text}"]'.format(tag=obj['tag'], text=obj['text'])
                 return self.driver.find_element_by_xpath(xpath)
+            elif 'complex_obj' in kwargs:
+                obj = kwargs.pop('complex_obj')
+                keys = list(obj.keys())
+                xpath = '//{tag}[contains(@{content}, "{text}")]'.format(tag=obj['tag'], content=keys[1], text=obj[keys[1]])
+                return self.driver.find_element_by_xpath(xpath)
+            elif 'simple_obj' in kwargs:
+                xpath = kwargs.pop('simple_obj')
+                return self.driver.find_element_by_xpath(xpath)
             else:
                 return None
         except NoSuchElementException:
@@ -81,6 +104,14 @@ class Chrome:
                 obj = kwargs.pop('obj')
                 xpath = '//{tag}[contains(@href, "{text}")]'.format(tag=obj['tag'], text=obj['text'])
                 return self.driver.find_elements_by_xpath(xpath)
+            elif 'complex_obj' in kwargs:
+                obj = kwargs.pop('complex_obj')
+                keys = list(obj.keys())
+                xpath = '//{tag}[contains(@{content}, "{text}")]'.format(tag=obj['tag'], content=keys[1], text=obj[keys[1]])
+                return self.driver.find_elements_by_xpath(xpath)
+            elif 'simple_obj' in kwargs:
+                xpath = kwargs.pop('simple_obj')
+                return self.driver.find_elements_by_xpath(xpath)
             else:
                 return None
         except NoSuchElementException:
@@ -91,17 +122,8 @@ class Chrome:
                 if count is 30:
                     return False
                 else:
-                    return self.get_objects(count, raiser, **kwarg)
-
-    def navigate(self, url):
-        self.driver.get(url)
-
-    def close(self):
-        try:
-            self.driver.close()
-        except WebDriverException:
-            print('[close()] Browser already closed')
-
+                    return self.get_objects(count, raiser, **kwarg)    
+                    
     def _click(self, obj):
         if obj.is_displayed():
             obj.click()

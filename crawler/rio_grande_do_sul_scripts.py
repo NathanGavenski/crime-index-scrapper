@@ -1,5 +1,4 @@
-import json
-import threading
+import json, threading, time
 
 from os import listdir
 from os.path import isfile, join
@@ -7,6 +6,7 @@ from helper.Chrome import Chrome
 from helper.Request import Request
 from helper.Interpreter import Interpreter
 from helper.Exporter import Exporter
+from helper.Cities import Cities
 
 class Scripts_RS:
     def __init__(self):
@@ -14,9 +14,12 @@ class Scripts_RS:
             self.objects = json.load(f)
 
         self.chrome = Chrome()
-        self.chrome.set_options().get_driver(full_screen=False)
-
         self.request = Request()
+        self.cities = Cities()
+    
+    def open_driver(self, headless=True, full_screen=False):
+        self.chrome.set_options(headless).get_driver(full_screen)
+
 
     def remove_duplicates(self, elements):
         result = []
@@ -28,6 +31,12 @@ class Scripts_RS:
         title = self.chrome.wait_for(obj=self.objects['indicadores_criminais'])
         if title is False:
             self.navigate_to()
+
+    def navigate_to(self, url, title):
+        self.chrome.navigate(url)
+        object_found = self.chrome.wait_for(complex_obj=title)
+        if object_found is False:
+            self.navigate_to(url, title)
 
     def get_general_crime_indices(self):
         try:
@@ -57,6 +66,7 @@ class Scripts_RS:
                 self.request.download_file(url, 'RS', index_type)
             else:
                 print(f'{url} not an excel file type')
+                pass
 
     def get_all_files_downloaded(self):
         path = './helper/downloaded_files/RS'
@@ -73,10 +83,11 @@ class Scripts_RS:
                 exporter.export(year, data)
             except Exception as e:
                 print(e)
-
-    def run(self):
+    
+    def files_script(self):
         # TODO: criar filas de erro para caso o processo falhe em um ponto
         #       o mesmo possa tentar dar um retry após o término.
+        self.open_driver()
         city, general = self.get_files()
         self.chrome.close()
 
@@ -109,5 +120,62 @@ class Scripts_RS:
         #     target=self.export_files,
         #     kwargs={ 'files': general }).start()
 
+    def run(self):
+        start = time.time()
+        print("openning browser")
+        self.open_driver(headless=True, full_screen=True)
+        print("waiting for flag")
+        self.navigate_to(url=self.objects['ibge']['url'], title=self.objects['ibge']['bandeira'])
+        print("clicking into button")
+        self.chrome.click(complex_obj=self.objects['ibge']['gerar_resumo'])
+
+        print("getting all labels")
+        elements = self.chrome.get_objects(complex_obj=self.objects['ibge']['labels'])
+        threads_number = round(len(elements)/6)
+        
+        for i in range(6):
+            print(f'clicking in labels {i} from {len(elements)}')
+            elements[i].click()
+
+        print('opening report')
+        self.chrome.click(complex_obj=self.objects['ibge']['gerar_relatorio'])
+        self.chrome.driver.switch_to.window(self.chrome.driver.window_handles[1])
+
+        print('waiting on table to load')
+        obj = False
+        while obj is False:
+            obj = self.chrome.wait_for(simple_obj=self.objects['ibge']['table']['title'])
+
+        print('getting columns')
+        columns_xpath = self.objects['ibge']['table']['columns']
+        columns = self.chrome.get_objects(simple_obj=columns_xpath)
+        columns_names = [ name.text for name in columns ]
+        
+        print('getting rows')
+        rows_xpath = self.objects['ibge']['table']['rows']['tag']
+        rows = self.chrome.get_objects(simple_obj=rows_xpath)
+        print(f'rows retrieved {len(rows)}')
+
+        print('getting information')
+        information_xpath = self.objects['ibge']['table']['rows']['info']
+        for i in range(len(rows)):
+            info = rows[i].find_elements_by_xpath(information_xpath)
+            name = info[0].text
+            for z in range(1, len(info)):
+                attribute_name = columns_names[z]
+                attribute = info[z].text
+                self.cities.update_city(name, attribute_name, attribute)
+
+        # print(self.cities.to_string())
+            
+        
+        end = time.time()
+        print('time elapsed: ', end - start)
+
+
 script = Scripts_RS()
-script.run()
+try:
+    script.run()
+finally:
+    script.chrome.close()
+    pass

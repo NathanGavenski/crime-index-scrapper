@@ -10,5 +10,32 @@
     },
     "indicador_geral": {
         "xpath": "//div[@class='artigo__texto']//div//a[not(contains(@href, \"municipio\"))]"
+    },
+    "ibge": {
+        "url": "https://cidades.ibge.gov.br/brasil/rs/panorama",
+        "bandeira": {
+            "tag": "img",
+            "src": "RS.gif"
+        },
+        "gerar_resumo": {
+            "tag": "i",
+            "class": "fa fa-list"
+        },
+        "labels": {
+            "tag": "label",
+            "text": ""
+        },
+        "gerar_relatorio": {
+            "tag": "button",
+            "class": "gerar_relatorio"
+        },
+        "table" : {
+            "title": "//*[@id=\"municipios\"]/tbody[1]/tr/td[1]",
+            "rows": {
+                "tag": "//tbody//tr",
+                "info": ".//td"
+            },
+            "columns": "//thead//tr//th"
+        }
     }
 }
