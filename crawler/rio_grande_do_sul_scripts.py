@@ -128,7 +128,7 @@ class Scripts_RS:
     def info_script(self):
         start = time.time()
         print("openning browser")
-        self.open_driver(headless=False, full_screen=True)
+        self.open_driver(headless=True, full_screen=True)
         print("waiting for flag")
         self.navigate_to(
             url=self.objects['ibge']['url'], title=self.objects['ibge']['bandeira'])
@@ -148,7 +148,7 @@ class Scripts_RS:
 
         #TODO: 
         for i in range(6):
-            print(f'clicking in labels {i} from {len(elements)}')
+            print(f'clicking in labels {(i + 1)} from {len(elements)}')
             elements[i].click()
 
         print('opening report')
