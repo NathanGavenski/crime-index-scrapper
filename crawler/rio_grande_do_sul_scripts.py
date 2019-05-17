@@ -127,6 +127,13 @@ class Scripts_RS:
         #     target=self.export_files,
         #     kwargs={ 'files': general }).start()
 
+    
+    def run(self):
+        self.files_script()
+
 
 script = Scripts_RS()
-script.run()
+try:
+    script.run()
+finally:
+    script.chrome.close()
