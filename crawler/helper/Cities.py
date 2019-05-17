@@ -27,28 +27,3 @@ class Cities:
                           ensure_ascii=False, 
                           sort_keys=True,
                           indent=2)
-      
-# start = time.time()  
-# cities = Cities()
-# def test(name):
-#     for i in range(1000):
-#         cities.update_city(name, i, i)
-
-# t1 = threading.Thread(
-#     target = test,
-#     kwargs = {
-#         'name': 'test1'
-#     })
-
-# t2 = threading.Thread(
-#     target = test,
-#     kwargs = {
-#         'name': 'test2'
-#     })
-# t1.start()
-# t2.start()
-# t1.join()
-# t2.join()
-
-# end = time.time()
-# print('time elapsed: ', end - start)

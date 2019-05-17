@@ -35,9 +35,11 @@ class Scripts_RS:
         if title is False:
             self.navigate_to()
 
-    def navigate_to(self, url, title):
-        self.chrome.navigate(url)
-        object_found = self.chrome.wait_for(complex_obj=title)
+    def navigate_to(self, url, title, chrome=None):
+        if chrome is None: chrome = self.chrome
+        
+        chrome.navigate(url)
+        object_found = chrome.wait_for(complex_obj=title)
         if object_found is False:
             self.navigate_to(url, title)
 
@@ -125,75 +127,6 @@ class Scripts_RS:
         #     target=self.export_files,
         #     kwargs={ 'files': general }).start()
 
-    def info_script(self):
-        start = time.time()
-        print("openning browser")
-        self.open_driver(headless=True, full_screen=True)
-        print("waiting for flag")
-        self.navigate_to(
-            url=self.objects['ibge']['url'], title=self.objects['ibge']['bandeira'])
-        print("clicking into button")
-        button = False
-        while button is False:
-            button = self.chrome.wait_for(
-                complex_obj=self.objects['ibge']['gerar_resumo'])
-        self.chrome.click(complex_obj=self.objects['ibge']['gerar_resumo'])
-
-        print("getting all labels")
-        elements = []
-        while len(elements) == 0:
-            elements = self.chrome.get_objects(
-                complex_obj=self.objects['ibge']['labels'])
-        threads_number = round(len(elements)/6)
-
-        #TODO: 
-        for i in range(6):
-            print(f'clicking in labels {(i + 1)} from {len(elements)}')
-            elements[i].click()
-
-        print('opening report')
-        self.chrome.click(complex_obj=self.objects['ibge']['gerar_relatorio'])
-        self.chrome.driver.switch_to.window(
-            self.chrome.driver.window_handles[1])
-
-        print('waiting on table to load')
-        obj = False
-        while obj is False:
-            obj = self.chrome.wait_for(
-                simple_obj=self.objects['ibge']['table']['title'])
-
-        print('getting columns')
-        columns_xpath = self.objects['ibge']['table']['columns']
-        columns = self.chrome.get_objects(simple_obj=columns_xpath)
-        columns_names = [name.text for name in columns]
-
-        print('getting rows')
-        rows_xpath = self.objects['ibge']['table']['rows']['tag']
-        rows = self.chrome.get_objects(simple_obj=rows_xpath)
-        print(f'rows retrieved {len(rows)}')
-
-        print('getting information')
-        information_xpath = self.objects['ibge']['table']['rows']['info']
-        for i in range(len(rows)):
-            if i % 50 == 0 or i == len(rows):
-                print(f'{i} from {len(rows)}')
-            info = rows[i].find_elements_by_xpath(information_xpath)
-            name = info[0].text
-            for z in range(1, len(info)):
-                attribute_name = columns_names[z]
-                attribute = info[z].text
-                self.cities.update_city(name, attribute_name, attribute)
-
-        end = time.time()
-        print('time elapsed: ', end - start)
-
-    def run(self):
-        self.info_script()
-
 
 script = Scripts_RS()
-try:
-    script.run()
-finally:
-    script.chrome.close()
-    pass
+script.run()
