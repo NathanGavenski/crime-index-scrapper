@@ -301,7 +301,7 @@ class Interpreter:
             
         percent = self.count_occurrence('demographic_density', 'hab')
         if percent == len(self.df):
-            self.remove_word('demographic_density', 'hab/hm²', remove_coma=True)
+            self.remove_word('demographic_density', 'hab/km²', remove_coma=True)
         else:
             out_standart = self.show_out_standard_values('demographic_density', 'hab')
             out_standart = pd.DataFrame(out_standart)
@@ -312,8 +312,71 @@ class Interpreter:
                 return self.validate_demographic_density()
             raise Exception('Coluna "Densidade demográfica" fora do padrão')
 
-    def interpret(self):
-        self.validate_gentilico()
+    def validate_estimated_population(self):
+        self.df.rename(
+            columns = {
+                'População estimada': 'estimated_population'
+            }, inplace=True)
+        
+        percent = self.count_occurrence('estimated_population', 'pessoas')
+        if percent == len(self.df):
+            self.remove_word('estimated_population', 'pessoas')
+        else:
+            out_standart = self.show_out_standard_values('estimated_population', 'pessoas')
+            out_standart = pd.DataFrame(out_standart)
+
+            percent = self.count_occurrence('estimated_population', 'sal')
+            if percent == len(out_standart):
+                self.df.loc[self.df['estimated_population'].str.contains('sal', na=False), 'estimated_population'] = np.nan
+                return self.validate_estimated_population()
+            raise Exception('Coluna "População estimada" fora do padrão')
+
+    def validate_occupied_people(self):
+        self.df.rename(
+            columns = {
+                'Pessoal ocupado': 'occupied_people'
+            }, inplace = True)
+
+        percent = self.count_occurrence('occupied_people', 'pessoas')
+        if percent == len(self.df):
+            self.remove_word('occupied_people', 'pessoas')
+        else:
+            out_standart = self.show_out_standard_values('occupied_people', 'pessoas')
+            out_standart = pd.DataFrame(out_standart)
+
+            percent = self.count_occurrence('occupied_people', '%')
+            if percent == len(out_standart):
+                self.df.loc[self.df['occupied_people'].str.contains('%', na=False), 'occupied_people'] = np.nan
+                return self.validate_occupied_people()
+
+            raise Exception('Coluna "Pessoal Ocupado" fora do padrão')
+    
+    def validate_average_salary(self):
+        self.df.rename(
+            columns = {
+                'Salário médio mensal dos trabalhadores formais': 'average_salary'
+            }, inplace = True)
+
+        percent = self.count_occurrence('average_salary', 'sal')
+        if percent == len(self.df):
+            self.remove_word('average_salary', 'salários mínimos', remove_coma=True)
+        else:
+            raise Exception('Coluna "Salário médio mensal dos trabalhadores formais" fora do padrão')
+
+    def validate_occupied_population(self):
+        self.df.rename(
+            columns = {
+                'População ocupada': 'occupied_population'
+            }, inplace = True)
+
+        percent = self.count_occurrence('occupied_population', '%')
+        if percent == len(self.df):
+            self.remove_percent('occupied_population')
+        else:
+            raise Exception('Coluna "População ocupada" fora do padrão')
+
+    def validate_all(self):
+        # Gentílico
         self.validate_area_territorial()
         self.validate_arborizacao()
         self.validate_esgotamento()
@@ -336,19 +399,26 @@ class Interpreter:
         self.validate_PIB()
         self.validate_receitas_fontes_externas()
         self.validate_population_last_census()
-        # Densidade demográfica
         self.validate_demographic_density()
-        # População estimada
-        # Pessoal ocupado
-        # Salário médio mensal dos trabalhadores formais
-        # População ocupada
+        self.validate_estimated_population()
+        self.validate_occupied_people()
+        self.validate_average_salary()
+        self.validate_occupied_population()
+
+    def drop_columns(self):
+        self.df.drop(['Gentílico', 'Total de receitas realizadas', 'Total de despesas empenhadas'], axis=1, inplace=True)
+
+    def interpret(self):
+        shape = self.df.shape[1]
+        self.validate_all()
+        self.drop_columns()
+        print(f'Processing done: {(shape - 3) == self.df.shape[1]}')
 
 
-
-
-with open('./helper/downloaded_files/IBGE/ibge_cities_info.json') as f:
+path = './helper/downloaded_files/IBGE'
+with open(f'{path}/ibge_cities_info.json') as f:
     data = json.load(f)
 
 interpreter = Interpreter(data)
 interpreter.interpret()
-print(interpreter.df['demographic_density'].head(10))
+interpreter.df.to_json(f'{path}/ibge_cities_info_processed.json', orient='index')

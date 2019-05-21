@@ -20,14 +20,30 @@ class Exporter:
             value = { year : raw_value }
             if key == 'Total RS':
                 if self.check_if_exist(key) is False:
-                    print(f'Creating first time register for {key} on year {year}')
+                    print(f'Creating for the first time register for {key} on year {year}')
                     self.db.child("rio_grande_do_sul").child(key).set(value)
                 else:
                     print(f'Updating registry {key} for year {year}')
                     self.db.child("rio_grande_do_sul").child(key).update(value)
+
+    def export_ibge(self, data):
+        if type(data) == 'dict':
+            print('teste')
+
+        for key in data:
+            # print(key)
+            pass
 
     def check_if_exist(self, city_name):
         for city in self.cities.each():
             if city.key() == city_name:
                 return True
         return False
+
+    
+path = './helper/downloaded_files/IBGE'
+with open(f'{path}/ibge_cities_info_processed.json') as f:
+    data = json.load(f)
+
+exporter = Exporter()
+exporter.export_ibge(data)
