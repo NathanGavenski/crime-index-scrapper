@@ -1,5 +1,6 @@
 import json
 import pyrebase
+import unidecode
 import pandas as pd
 
 class Exporter:
@@ -8,6 +9,7 @@ class Exporter:
         with open('./helper/firebase/pyrebase_config.json') as f:
             config = json.load(f)
 
+        self.cities_list = []
         self.db = pyrebase.initialize_app(config).database()
         self.cities = self.db.child('rio_grande_do_sul').get()
 
@@ -27,17 +29,36 @@ class Exporter:
                     self.db.child("rio_grande_do_sul").child(key).update(value)
 
     def export_ibge(self, data):
-        if type(data) == 'dict':
-            print('teste')
+        if isinstance(data, dict) is False:
+            raise Exception('Wrong class type, data should be "dict"')
 
+        cities_list = self.get_cities_list()
         for key in data:
-            # print(key)
-            pass
+            city_name = self.clear_name(key)
+            if city_name in cities_list:
+            else:
+                print(f'Cidade {city_name} não está na base')
+
+    def get_cities_list(self):
+        if len(self.cities_list) > 0:
+            return self.cities_list
+   
+        for city in self.cities.each():
+            self.cities_list.append(city.key())
+        
+        return self.cities_list
+
+    def clear_name(self, city_name):
+        name = unidecode.unidecode(city_name.upper())
+        name = name.replace('\'', '')
+        name = name.replace('ENTRE-', 'ENTRE ')
+        name = name.replace('VILANOVA', 'VILA NOVA')
+        return name
+        
 
     def check_if_exist(self, city_name):
-        for city in self.cities.each():
-            if city.key() == city_name:
-                return True
+        if city_name in self.get_cities_list():
+            return True
         return False
 
     
