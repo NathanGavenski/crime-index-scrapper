@@ -35,14 +35,6 @@ class Scripts_RS:
         if title is False:
             self.navigate_to()
 
-    def navigate_to(self, url, title, chrome=None):
-        if chrome is None: chrome = self.chrome
-        
-        chrome.navigate(url)
-        object_found = chrome.wait_for(complex_obj=title)
-        if object_found is False:
-            self.navigate_to(url, title)
-
     def get_general_crime_indices(self):
         try:
             indicador_geral = self.objects['indicador_geral']
@@ -127,7 +119,6 @@ class Scripts_RS:
         #     target=self.export_files,
         #     kwargs={ 'files': general }).start()
 
-    
     def run(self):
         self.files_script()
 
